@@ -12,13 +12,17 @@ const WrapperStyled = styled.div`
     .content {
         margin-left: 30px;
     }
+
+    .date {
+        margin-left: 5px;
+    }
 `;
 
 const Message = ({text, displayName, createdAt, photoURL}) => {
     return (
     <WrapperStyled>
         <div>
-            <Avatar src={photoURL}>A</Avatar>
+            <Avatar size='small' src={photoURL}>A</Avatar>
             <Typography.Text className="auth">{displayName}</Typography.Text>
             <Typography.Text className="date">{createdAt}</Typography.Text>
         </div>
