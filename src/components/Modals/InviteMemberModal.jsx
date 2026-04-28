@@ -2,10 +2,10 @@ import { useContext, useMemo, useState } from "react";
 import { AppContext } from "../../Context/AppProvider";
 import { Modal, Form, Select, Spin, Avatar } from "antd";
 import { debounce } from "lodash";
-import { collection, getDocs, limit, orderBy, query, where } from "firebase/firestore";
+import { arrayUnion, collection, doc, getDocs, limit, orderBy, query, updateDoc, where } from "firebase/firestore";
 import { db } from "../../firebase/config";
 
-const DebounceSelect = ({ fetchOptions, debounceTimeout = 300, ...props }) => {
+const DebounceSelect = ({ fetchOptions, debounceTimeout = 300, currentMembers, ...props }) => {
     const [fetching, setFetching] = useState(false);
     const [options, setOptions] = useState([]);
 
@@ -14,14 +14,14 @@ const DebounceSelect = ({ fetchOptions, debounceTimeout = 300, ...props }) => {
             setOptions([]);
             setFetching(true);
 
-            fetchOptions(value).then(newOptions => {
+            fetchOptions(value, currentMembers).then(newOptions => {
                 setOptions(newOptions);
                 setFetching(false);
             });
         }
 
         return debounce(loadOptions, debounceTimeout);
-    }, [fetchOptions, debounceTimeout]);
+    }, [fetchOptions, debounceTimeout, currentMembers]);
 
     return (
         <Select
@@ -46,7 +46,7 @@ const DebounceSelect = ({ fetchOptions, debounceTimeout = 300, ...props }) => {
     );
 }
 
-const fetchUserList = async (search) => {
+const fetchUserList = async (search, currentMembers) => {
     const q = query(
         collection(db, "users"),
         where('keyWords', 'array-contains', search),
@@ -55,26 +55,45 @@ const fetchUserList = async (search) => {
     );
 
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({
-        label: doc.data().displayName,
-        value: doc.data().uid,
-        photoURL: doc.data().photoURL
-    }));
+    const memberSet = new Set(currentMembers || []);
+
+    return snapshot.docs
+        .map(doc => ({
+            label: doc.data().displayName,
+            value: doc.data().uid,
+            photoURL: doc.data().photoURL
+        }))
+        .filter(user => !memberSet.has(user.value));
 }
 
 const InviteMemberModal = () => {
-    const { isInviteMemberVisible, setIsInviteMemberVisible } = useContext(AppContext);
+    const { isInviteMemberVisible, setIsInviteMemberVisible, selectedRoomId, selectedRoom } = useContext(AppContext);
     const [value, setValue] = useState([]);
     const [form] = Form.useForm();
 
     const handleOk = async () => {
+        if (!selectedRoomId || !value.length) {
+            form.resetFields();
+            setValue([]);
+            setIsInviteMemberVisible(false);
+            return;
+        }
+
+        const roomRef = doc(db, "rooms", selectedRoomId);
+        const memberIds = value.map((vl) => vl.value);
+
+        await updateDoc(roomRef, {
+            members: arrayUnion(...memberIds)
+        });
 
         form.resetFields();
+        setValue([]);
         setIsInviteMemberVisible(false);
     }
 
     const handleCancel = () => {
         form.resetFields();
+        setValue([]);
         setIsInviteMemberVisible(false);
     }
 
@@ -94,6 +113,7 @@ const InviteMemberModal = () => {
                     fetchOptions={fetchUserList}
                     onChange={newValue => setValue(newValue)}
                     style={{ width: "100%" }}
+                    currentMembers={selectedRoom?.members || []}
                 />
             </Form>
         </Modal >

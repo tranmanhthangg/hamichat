@@ -2,8 +2,11 @@ import { UserAddOutlined } from "@ant-design/icons";
 import { Avatar, Tooltip, Button, Input, Form, Alert } from "antd";
 import styled from "styled-components";
 import Message from "./Message";
-import { useContext } from "react";
+import { useContext, useState, useMemo } from "react";
 import { AppContext } from "../../Context/AppProvider";
+import { addDocument } from "../../firebase/service";
+import { AuthContext } from "../../Context/AuthProvider";
+import useFireStore from "../../hooks/useFireStore";
 
 const WrapperStyled = styled.div`
     height: 100vh;
@@ -67,6 +70,37 @@ const MessageListStyled = styled.div`
 
 const ChatWindow = () => {
     const { selectedRoom, members, setIsInviteMemberVisible } = useContext(AppContext);
+    const { user } = useContext(AuthContext);
+
+    const [inputValue, setInputValue] = useState("");
+    const [form] = Form.useForm();
+
+    const handleInputChange = (e) => {
+        setInputValue(e.target.value);
+    }
+
+    const handleOnSubmit = async () => {
+        if (!user || !selectedRoom || !inputValue.trim()) return;
+
+        await addDocument("messages", {
+            text: inputValue,
+            uid: user.uid,
+            photoURL: user.photoURL,
+            displayName: user.displayName,
+            roomId: selectedRoom.id
+        })
+
+        form.resetFields(["messages"]);
+        setInputValue("");
+    }
+
+    const condition = useMemo(() => ({
+        fieldName: 'roomId',
+        operator: "==",
+        compareValue: selectedRoom?.id
+    }), [selectedRoom?.id]);
+
+    const messages = useFireStore("messages", condition);
 
     return (
         <WrapperStyled>
@@ -90,22 +124,36 @@ const ChatWindow = () => {
                     </HeaderStyled>
                     <ContentStyled>
                         <MessageListStyled>
-                            <Message text="Test" photoURL={null} displayName="Tung" createdAt={1234332324} />
-                            <Message text="Test" photoURL={null} displayName="Tung" createdAt={1234332324} />
-                            <Message text="Test" photoURL={null} displayName="Tung" createdAt={1234332324} />
-                            <Message text="Test" photoURL={null} displayName="Tung" createdAt={1234332324} />
+                            {
+                                messages.map(mes => (
+                                    <Message
+                                        key={mes.id}
+                                        text={mes.text}
+                                        photoURL={mes.photoURL}
+                                        displayName={mes.displayName}
+                                        createdAt={mes.createdAt}
+                                    />
+                                ))
+                            }
                         </MessageListStyled>
-                        <FormStyled>
-                            <Form.Item>
-                                <Input variant="borderless" autoComplete='off' placeholder="Nhập tin nhắn..." />
+                        <FormStyled form={form}>
+                            <Form.Item name="messages">
+                                <Input
+                                    value={inputValue}
+                                    onChange={handleInputChange}
+                                    onPressEnter={handleOnSubmit}
+                                    variant="borderless"
+                                    autoComplete='off'
+                                    placeholder="Nhập tin nhắn..."
+                                />
                             </Form.Item>
-                            <Button>Gửi</Button>
+                            <Button type="primary" onClick={handleOnSubmit}>Gửi</Button>
                         </FormStyled>
                     </ContentStyled>
                 </>
                 : <Alert title="Hãy chọn phòng" type="info" showIcon style={{ margin: "5" }} closable />
             }
-        </WrapperStyled>
+        </WrapperStyled >
     )
 }
 
