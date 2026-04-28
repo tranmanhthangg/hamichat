@@ -6,7 +6,8 @@ import { AuthContext } from "../../Context/AuthProvider.jsx";
 
 const AddRoomModal = () => {
     const { isAddRoomVisible, setIsAddRoomVisible } = useContext(AppContext);
-    const { user: { uid } } = useContext(AuthContext);
+    const { user } = useContext(AuthContext);
+    const uid = user?.uid;
     const [form] = Form.useForm();
 
     const handleOk = async () => {

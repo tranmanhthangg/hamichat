@@ -1,7 +1,9 @@
 import { UserAddOutlined } from "@ant-design/icons";
-import { Avatar, Tooltip, Button, Input, Form } from "antd";
+import { Avatar, Tooltip, Button, Input, Form, Alert } from "antd";
 import styled from "styled-components";
 import Message from "./Message";
+import { useContext } from "react";
+import { AppContext } from "../../Context/AppProvider";
 
 const WrapperStyled = styled.div`
     height: 100vh;
@@ -64,46 +66,46 @@ const MessageListStyled = styled.div`
 `;
 
 const ChatWindow = () => {
+    const { selectedRoom, members, setIsInviteMemberVisible } = useContext(AppContext);
+
     return (
         <WrapperStyled>
-            <HeaderStyled>
-                <div className="header-info">
-                    <p className="header-title">Room 1</p>
-                    <span className="header-desc">Day la room 1</span>
-                </div>
-                <ButtonGroupStyled>
-                    <Button type="text" icon={<UserAddOutlined />}>Mời</Button>
-                    <Avatar.Group size='small' max={{ count: 2 }}>
-                        <Tooltip title='A'>
-                            <Avatar>A</Avatar>
-                        </Tooltip>
-                        <Tooltip title='B'>
-                            <Avatar>B</Avatar>
-                        </Tooltip>
-                        <Tooltip title='C'>
-                            <Avatar>C</Avatar>
-                        </Tooltip>
-                        <Tooltip title='D'>
-                            <Avatar>D</Avatar>
-                        </Tooltip>
-                    </Avatar.Group>
-                </ButtonGroupStyled>
-            </HeaderStyled>
-        <ContentStyled>
-            <MessageListStyled>
-                <Message text="Test" photoURL={null} displayName="Tung" createdAt={1234332324} />
-                <Message text="Test" photoURL={null} displayName="Tung" createdAt={1234332324} />
-                <Message text="Test" photoURL={null} displayName="Tung" createdAt={1234332324} />
-                <Message text="Test" photoURL={null} displayName="Tung" createdAt={1234332324} />
-            </MessageListStyled>
-            <FormStyled>
-                <Form.Item>
-                    <Input variant="borderless" autoComplete='off' placeholder="Nhập tin nhắn..." />
-                </Form.Item>
-                <Button>Gửi</Button>
-            </FormStyled>
-        </ContentStyled>
-        </WrapperStyled>    
+            {selectedRoom ?
+                <>
+                    <HeaderStyled>
+                        <div className="header-info">
+                            <p className="header-title">{selectedRoom?.name || 'Chọn một phòng'}</p>
+                            <span className="header-desc">{selectedRoom?.description || ''}</span>
+                        </div>
+                        <ButtonGroupStyled>
+                            <Button type="text" icon={<UserAddOutlined />} onClick={() => setIsInviteMemberVisible(true)}>Mời</Button>
+                            <Avatar.Group size='small' max={{ count: 2 }}>
+                                {
+                                    members.map(member => <Tooltip title={member.displayName} key={member.id}>
+                                        <Avatar src={member.photoURL}>{member.photoURL ? "" : member.displayName?.charAt(0)?.toUpperCase()}</Avatar>
+                                    </Tooltip>)
+                                }
+                            </Avatar.Group>
+                        </ButtonGroupStyled>
+                    </HeaderStyled>
+                    <ContentStyled>
+                        <MessageListStyled>
+                            <Message text="Test" photoURL={null} displayName="Tung" createdAt={1234332324} />
+                            <Message text="Test" photoURL={null} displayName="Tung" createdAt={1234332324} />
+                            <Message text="Test" photoURL={null} displayName="Tung" createdAt={1234332324} />
+                            <Message text="Test" photoURL={null} displayName="Tung" createdAt={1234332324} />
+                        </MessageListStyled>
+                        <FormStyled>
+                            <Form.Item>
+                                <Input variant="borderless" autoComplete='off' placeholder="Nhập tin nhắn..." />
+                            </Form.Item>
+                            <Button>Gửi</Button>
+                        </FormStyled>
+                    </ContentStyled>
+                </>
+                : <Alert title="Hãy chọn phòng" type="info" showIcon style={{ margin: "5" }} closable />
+            }
+        </WrapperStyled>
     )
 }
 

@@ -1,8 +1,7 @@
 import { Row, Col, Button, Typography } from 'antd';
-import { serverTimestamp } from 'firebase/firestore';
 import { signInWithPopup, FacebookAuthProvider, getAdditionalUserInfo } from "firebase/auth";
 import { auth } from "../../firebase/config";
-import { addDocument } from '../../firebase/service';
+import { addDocument, generateKeywords } from '../../firebase/service';
 
 const { Title } = Typography;
 const fbProvider = new FacebookAuthProvider();
@@ -19,7 +18,7 @@ const Login = () => {
                 photoURL: data.user.photoURL,
                 uid: data.user.uid,
                 providerId: data.providerId,
-                createdAt: serverTimestamp(),
+                keyWords: generateKeywords(data.user.displayName)
             });
         }
     }

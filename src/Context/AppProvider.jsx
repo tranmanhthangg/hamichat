@@ -7,8 +7,11 @@ export const AppContext = createContext();
 
 const AppProvider = ({ children }) => {
     const [isAddRoomVisible, setIsAddRoomVisible] = useState(false);
+    const [selectedRoomId, setSelectedRoomId] = useState("");
+    const [isInviteMemberVisible, setIsInviteMemberVisible] = useState(false);
 
-    const { user: { uid } } = useContext(AuthContext);
+    const { user } = useContext(AuthContext);
+    const uid = user?.uid;
 
     const roomCondition = useMemo(() => {
         return {
@@ -16,12 +19,37 @@ const AppProvider = ({ children }) => {
             operator: 'array-contains',
             compareValue: uid
         }
-    }, [uid])
+    }, [uid]);
 
     const rooms = useFireStore("rooms", roomCondition);
 
+    const selectedRoom = useMemo(() => {
+        return rooms.find(room => room.id === selectedRoomId);
+    }, [rooms, selectedRoomId]);
+
+    const usersCondition = useMemo(() => {
+        return {
+            fieldName: 'uid',
+            operator: 'in',
+            compareValue: selectedRoom?.members || []
+        }
+    }, [selectedRoom?.members]);
+
+    const members = useFireStore('users', usersCondition);
+
     return (
-        <AppContext.Provider value={{ rooms, isAddRoomVisible, setIsAddRoomVisible }}>
+        <AppContext.Provider value={
+            {
+                rooms,
+                isAddRoomVisible,
+                setIsAddRoomVisible,
+                selectedRoomId,
+                setSelectedRoomId,
+                selectedRoom,
+                members,
+                isInviteMemberVisible,
+                setIsInviteMemberVisible
+            }}>
             {children}
         </AppContext.Provider>
     );

@@ -29,7 +29,7 @@ const ChildrenStyled = styled.div`
 `;
 
 const RoomList = () => {
-    const { rooms, setIsAddRoomVisible } = useContext(AppContext);
+    const { rooms, setIsAddRoomVisible, setSelectedRoomId } = useContext(AppContext);
 
     const handleAddRoom = () => {
         setIsAddRoomVisible(true);
@@ -42,7 +42,7 @@ const RoomList = () => {
             children:
                 <ChildrenStyled>
                     {
-                        rooms.map(room => <Link className="link-styled" key={room.id}>{room.name}</Link>)
+                        rooms.map(room => <Link className="link-styled" key={room.id} onClick={() => setSelectedRoomId(room.id)}>{room.name}</Link>)
                     }
                     <Button type='text' icon={<PlusSquareOutlined />} className="add-room" onClick={handleAddRoom}>Thêm phòng</Button>
                 </ChildrenStyled>
