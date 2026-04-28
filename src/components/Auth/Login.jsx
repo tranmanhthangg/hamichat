@@ -1,11 +1,10 @@
-import {Row, Col, Button, Typography} from 'antd';
+import { Row, Col, Button, Typography } from 'antd';
 import { serverTimestamp } from 'firebase/firestore';
-import {signInWithPopup, FacebookAuthProvider, getAdditionalUserInfo} from "firebase/auth";
-import {auth} from "../../firebase/config";
+import { signInWithPopup, FacebookAuthProvider, getAdditionalUserInfo } from "firebase/auth";
+import { auth } from "../../firebase/config";
 import { addDocument } from '../../firebase/service';
 
-
-const {Title} = Typography;
+const { Title } = Typography;
 const fbProvider = new FacebookAuthProvider();
 
 const Login = () => {
@@ -26,13 +25,13 @@ const Login = () => {
     }
 
     return (
-        <Row justify={'center'} style={{height: "800px"}}>
+        <Row justify={'center'} style={{ height: "800px" }}>
             <Col span={8}>
-                <Title style={{textAlign : "center", color: "#ccc"}} level={1}>HAMICHAT</Title>
-                <Button style={{width: "100%", marginBottom: "5px"}}>
+                <Title style={{ textAlign: "center", color: "#ccc" }} level={1}>HAMICHAT</Title>
+                <Button style={{ width: "100%", marginBottom: "5px" }}>
                     Đăng nhập bằng Google
                 </Button>
-                <Button style={{width: "100%"}} onClick={handleFbLogin}>
+                <Button style={{ width: "100%" }} onClick={handleFbLogin}>
                     Đăng nhập bằng Facebook
                 </Button>
             </Col>

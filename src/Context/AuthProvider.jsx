@@ -1,38 +1,39 @@
-import { useNavigate } from 'react-router-dom';
-import {auth} from "../firebase/config";
-import {onAuthStateChanged} from "firebase/auth";
-import { useEffect, useState } from 'react';
+/* eslint-disable react-refresh/only-export-components */
+import { createContext, useEffect, useState } from 'react';
 import { Spin } from 'antd';
-import { AuthContext } from './AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '../firebase/config';
 
-const AuthProvider = ({children}) => {
+export const AuthContext = createContext();
+
+const AuthProvider = ({ children }) => {
     const [user, setUser] = useState();
     const [isLoading, setIsLoading] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
-        const unsubscibed = onAuthStateChanged(auth, (user) => {
-            if (user) {
-                setUser(user);
-                navigate("/");
+        const unsubscribed = onAuthStateChanged(auth, (currentUser) => {
+            if (currentUser) {
+                setUser(currentUser);
+                navigate('/');
+            } else {
+                navigate('/login');
             }
-            else navigate('/login');
-            
+
             setIsLoading(false);
         });
 
         return () => {
-            unsubscibed();
-        }
+            unsubscribed();
+        };
     }, [navigate]);
 
     return (
-        <>
-            <AuthContext.Provider value={{user}}>
-                { isLoading ? <Spin /> : children}
-            </AuthContext.Provider>
-        </>
+        <AuthContext.Provider value={{ user }}>
+            {isLoading ? <Spin /> : children}
+        </AuthContext.Provider>
     );
-}
+};
 
 export default AuthProvider;
