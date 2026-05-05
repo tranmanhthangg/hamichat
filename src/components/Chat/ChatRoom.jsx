@@ -1,19 +1,13 @@
-import {Row, Col} from 'antd';
+import { Row, Col } from 'antd';
 import SideBar from './SideBar';
 import ChatWindow from './ChatWindow';
 
 const ChatRoom = () => {
     return (
-        <>
-            <Row>
-                <Col span={6}>
-                    <SideBar />
-                </Col>
-                <Col span={18}>
-                    <ChatWindow />
-                </Col>
-            </Row>
-        </>
+        <Row>
+            <Col span={7}><SideBar /></Col>
+            <Col span={17}><ChatWindow /></Col>
+        </Row>
     );
 }
 
