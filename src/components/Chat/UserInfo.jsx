@@ -19,11 +19,31 @@ const WrapperStyled = styled.div`
 
     .username {
         margin-left: 10px;
-        padding: 0;
+        padding: 0 !important;
         font-size: 16px;
         border: none;
         outline: none;
         box-shadow: none;
+        background: transparent;
+        color: inherit;
+    }
+
+    .username:hover,
+    .username:focus,
+    .username:active,
+    .username:focus-visible {
+        background: transparent !important;
+        border: none !important;
+        color: inherit !important;
+        box-shadow: none !important;
+    }
+
+    .username:hover {
+        color: #fadb14 !important;
+    }
+
+    .username::after {
+        display: none !important;
     }
 
     .avatar {
@@ -47,7 +67,8 @@ const WrapperStyled = styled.div`
     }
 
     .logout:hover .logout-btn {
-        transform: scale(1.25);
+        transform: scale(1.05);
+        color: #fadb14 !important;
     }
 `;
 
@@ -62,7 +83,9 @@ const UserInfo = () => {
                 <Avatar className="avatar" size="large" src={photoURL}>
                     {photoURL ? "" : displayName?.charAt(0)?.toUpperCase()}
                 </Avatar>
-                <Button ghost className="username">{displayName}</Button>
+                <Button type="text" className="username">
+                    {displayName}
+                </Button>
             </div>
 
             <div className="logout" onClick={() => auth.signOut()}>

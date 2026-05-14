@@ -15,7 +15,7 @@ const WrapperStyled = styled.div`
 const HeaderStyled = styled.div`
     display: flex;
     justify-content: space-between;
-    height: 56px;
+    height: 50px;
     padding: 0 16px;
     align-items: center;
     border-bottom: 1px solid rgb(230, 230, 230);
